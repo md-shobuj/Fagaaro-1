@@ -1,0 +1,103 @@
+name: fagaaro
+description: "A production-grade Clean Architecture Flutter application."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_screenutil: ^5.9.3
+
+  # State Management
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.7
+
+  # Navigation & Routing
+  go_router: ^17.3.0
+
+  # Dependency Injection & Service Locator
+  get_it: ^9.2.1
+  injectable: ^3.0.0
+
+  # Local Persistence & Secure Storage
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  flutter_secure_storage: ^10.3.1
+  shared_preferences: ^2.3.2
+
+  # Networking & REST API
+  dio: ^5.8.0
+  retrofit: ^4.4.2
+  socket_io_client: ^3.1.5
+
+  # Network connectivity
+  connectivity_plus: ^7.3.1
+
+  # Geofencing, Location & Permissions
+  geolocator: ^14.0.3
+  geofence_service: ^6.0.0
+  flutter_local_notifications: ^22.2.0
+  permission_handler: ^13.0.0
+  camera: ^0.12.0+2
+  local_auth: ^3.0.2
+
+  # Config, Logging & Utilities
+  flutter_dotenv: ^6.0.1
+  logger: ^2.4.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+  crypto: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Generators & Code Generation
+  build_runner: ^2.4.15
+  hive_ce_generator: ^1.11.1
+  freezed: ^3.2.6-dev.1
+  json_serializable: ^6.8.0
+  retrofit_generator: ^10.2.8
+  injectable_generator: ^3.0.2
+
+  # Unit Testing & Mocking
+  bloc_test: any
+  mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash_logo_square.png
+  color_dark: "#121212"
+  image_dark: assets/images/splash_logo_square.png
+
+  android_12:
+    image: assets/images/splash_logo_square.png
+    icon_background_color: "#FFFFFF"
+    color: "#FFFFFF"
+
+  android: true
+  ios: true
+  web: false
+

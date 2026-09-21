@@ -63,15 +63,13 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
             _isProcessing = false;
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Payment successful! Organizer Pro subscription activated.'),
-              backgroundColor: Color(0xFF059669),
-              duration: Duration(seconds: 3),
-            ),
+          context.go(
+            AppRouter.subscriptionActivatedPath,
+            extra: <String, String>{
+              'title': widget.planTitle,
+              'duration': widget.planDuration,
+            },
           );
-
-          context.go(AppRouter.dashboardPath);
         }
       });
     }

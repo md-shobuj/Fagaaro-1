@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/router/app_router.dart';
 import '../widgets/organizer_profile_form.dart';
 
@@ -22,6 +25,9 @@ class _BuildProfileScreenState extends State<BuildProfileScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _cityController;
   late final TextEditingController _addressController;
+
+  static const int _maxUploadBytes = 5 * 1024 * 1024;
+  final ImagePicker _imagePicker = ImagePicker();
 
   File? _avatarImage;
   String _selectedCountry = 'United States';
@@ -97,12 +103,12 @@ class _BuildProfileScreenState extends State<BuildProfileScreen> {
   }
 
   void _onPickAvatar() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -113,14 +119,16 @@ class _BuildProfileScreenState extends State<BuildProfileScreen> {
                   leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF084DFB)),
                   title: const Text('Choose from Gallery'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
+                    _pickAvatarFrom(ImageSource.gallery);
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt_outlined, color: Color(0xFF084DFB)),
                   title: const Text('Take a Photo'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
+                    _pickAvatarFrom(ImageSource.camera);
                   },
                 ),
               ],
@@ -131,15 +139,65 @@ class _BuildProfileScreenState extends State<BuildProfileScreen> {
     );
   }
 
-  void _onPickNidFile() {
-    setState(() {
-      _nidFileName = 'nid_verification_copy.pdf';
-    });
+  Future<void> _pickAvatarFrom(ImageSource source) async {
+    try {
+      final XFile? picked = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null || !mounted) return;
+
+      final int size = await picked.length();
+      if (!mounted) return;
+      if (size > _maxUploadBytes) {
+        _showError('Photo must be 5MB or smaller.');
+        return;
+      }
+      setState(() => _avatarImage = File(picked.path));
+    } on PlatformException catch (e) {
+      debugPrint('Avatar pick failed (${source.name}): ${e.code} ${e.message}');
+      if (!mounted) return;
+      _showError(
+        source == ImageSource.camera
+            ? 'Could not open the camera. Please check camera permission in Settings.'
+            : 'Could not open the gallery. Please check photo permission in Settings.',
+      );
+    }
+  }
+
+  Future<void> _onPickNidFile() async {
+    try {
+      final PlatformFile? file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: const ['pdf', 'png', 'jpg', 'jpeg'],
+      );
+      if (file == null || !mounted) return;
+
+      final int size = file.lengthSync() ?? await file.length() ?? 0;
+      if (!mounted) return;
+      if (size > _maxUploadBytes) {
+        _showError('NID file must be 5MB or smaller.');
+        return;
+      }
+      setState(() => _nidFileName = file.name);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('NID document attached successfully!'),
+          backgroundColor: Color(0xFF059669),
+        ),
+      );
+    } on PlatformException catch (e) {
+      debugPrint('NID pick failed: ${e.code} ${e.message}');
+      if (!mounted) return;
+      _showError('Could not open the file picker. Please try again.');
+    }
+  }
+
+  void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('NID document attached successfully!'),
-        backgroundColor: Color(0xFF059669),
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
     );
   }
 

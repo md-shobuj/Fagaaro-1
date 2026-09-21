@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fagaaro/features/auth/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
@@ -12,17 +13,21 @@ import '../../features/auth/presentation/screens/verify_otp_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/account_ready_screen.dart';
 import '../../features/auth/presentation/screens/build_profile_screen.dart';
+import '../../features/auth/presentation/screens/edit_profile_screen.dart';
+import '../../features/auth/presentation/screens/account_settings_screen.dart';
+import '../../features/auth/presentation/screens/change_password_screen.dart';
+import '../../features/auth/presentation/screens/legal_screen.dart';
 import '../../features/auth/presentation/screens/verification_submitted_screen.dart';
 import '../../features/auth/presentation/screens/subscription_screen.dart';
 import '../../features/auth/presentation/screens/subscription_checkout_screen.dart';
-import '../../features/todos/presentation/screens/todos_screen.dart';
-import '../../features/todos/presentation/screens/add_todo_screen.dart';
-import '../../features/locations/domain/entities/geofence_location.dart';
-import '../../features/locations/presentation/screens/location_list_screen.dart';
-import '../../features/locations/presentation/screens/add_location_screen.dart';
-import '../../features/locations/presentation/screens/edit_location_screen.dart';
-import '../../features/sync/presentation/screens/sync_screen.dart';
-import '../../features/dashboard/presentation/screens/profile_screen.dart';
+import '../../features/auth/presentation/screens/subscription_activated_screen.dart';
+import '../../features/home/presentation/screens/home_shell_screen.dart';
+import '../../features/events/presentation/screens/create_event_screen.dart';
+import '../../features/events/presentation/screens/schedule_event_screen.dart';
+import '../../features/events/presentation/screens/ticket_pricing_screen.dart';
+import '../../features/events/presentation/screens/review_event_screen.dart';
+import '../../features/events/presentation/screens/event_submitted_screen.dart';
+
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 
@@ -56,6 +61,13 @@ abstract class AppRouter {
   static const String verificationSubmittedPath = '/verification-submitted';
   static const String subscriptionPath = '/subscription';
   static const String subscriptionCheckoutPath = '/subscription-checkout';
+  static const String subscriptionActivatedPath = '/subscription-activated';
+  static const String homePath = '/home';
+  static const String createEventPath = '/create-event';
+  static const String scheduleEventPath = '/create-event/schedule';
+  static const String ticketPricingPath = '/create-event/tickets';
+  static const String reviewEventPath = '/create-event/review';
+  static const String eventSubmittedPath = '/create-event/submitted';
   static const String dashboardPath = '/dashboard';
   static const String todosPath = '/todos';
   static const String addTodoPath = '/todos/add';
@@ -64,6 +76,12 @@ abstract class AppRouter {
   static const String editLocationPath = '/locations/edit';
   static const String syncPath = '/sync';
   static const String profilePath = '/profile';
+  static const String editProfilePath = '/edit-profile';
+  static const String accountSettingsPath = '/account-settings';
+  static const String changePasswordPath = '/change-password';
+  static const String termsPath = '/terms';
+  static const String privacyPath = '/privacy';
+  static const String aboutPath = '/about';
 
   static final GoRouter router = GoRouter(
     initialLocation: splashPath,
@@ -84,7 +102,20 @@ abstract class AppRouter {
           location == accountReadyPath ||
           location == verificationSubmittedPath ||
           location == subscriptionPath ||
-          location == subscriptionCheckoutPath;
+          location == subscriptionCheckoutPath ||
+          location == subscriptionActivatedPath ||
+          location == homePath ||
+          location == createEventPath ||
+          location == scheduleEventPath ||
+          location == ticketPricingPath ||
+          location == reviewEventPath ||
+          location == eventSubmittedPath ||
+          location == editProfilePath ||
+          location == accountSettingsPath ||
+          location == changePasswordPath ||
+          location == termsPath ||
+          location == privacyPath ||
+          location == aboutPath;
       final isSplash = location == splashPath;
 
       // Handle redirect logic based on current authentication state
@@ -169,39 +200,94 @@ abstract class AppRouter {
         },
       ),
       GoRoute(
-        path: dashboardPath,
-        redirect: (context, state) => todosPath,
-      ),
-      GoRoute(
-        path: todosPath,
-        builder: (context, state) => const TodosScreen(),
-      ),
-      GoRoute(
-        path: addTodoPath,
-        builder: (context, state) => const AddTodoScreen(),
-      ),
-      GoRoute(
-        path: locationsPath,
-        builder: (context, state) => const LocationListScreen(),
-      ),
-      GoRoute(
-        path: addLocationPath,
-        builder: (context, state) => const AddLocationScreen(),
-      ),
-      GoRoute(
-        path: editLocationPath,
+        path: subscriptionActivatedPath,
         builder: (context, state) {
-          final location = state.extra as GeofenceLocation;
-          return EditLocationScreen(location: location);
+          final extra = state.extra as Map<String, String>?;
+          return SubscriptionActivatedScreen(
+            planTitle: extra?['title'] ?? 'Organizer Pro',
+            planDuration: extra?['duration'] ?? '6 Months',
+          );
         },
       ),
       GoRoute(
-        path: syncPath,
-        builder: (context, state) => const SyncScreen(),
+        path: scheduleEventPath,
+        builder: (context, state) => const ScheduleEventScreen(),
       ),
+      GoRoute(
+        path: ticketPricingPath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, Object>?;
+          return TicketPricingScreen(
+            date: extra?['date'] as DateTime?,
+            startMinutes: extra?['startMinutes'] as int? ?? 9 * 60,
+            endMinutes: extra?['endMinutes'] as int? ?? 17 * 60,
+          );
+        },
+      ),
+      GoRoute(
+        path: reviewEventPath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, Object>?;
+          return ReviewEventScreen(
+            priceCents: extra?['priceCents'] as int? ?? 9900,
+            capacity: extra?['capacity'] as int? ?? 500,
+            date: extra?['date'] as DateTime?,
+            startMinutes: extra?['startMinutes'] as int? ?? 9 * 60,
+            endMinutes: extra?['endMinutes'] as int? ?? 17 * 60,
+          );
+        },
+      ),
+      GoRoute(
+        path: eventSubmittedPath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, Object>?;
+          return EventSubmittedScreen(
+            eventName: extra?['eventName'] as String? ?? 'Global Tech Innovation Summit 2026',
+            date: extra?['date'] as DateTime?,
+            priceCents: extra?['priceCents'] as int? ?? 9900,
+          );
+        },
+      ),
+      GoRoute(
+        path: createEventPath,
+        builder: (context, state) => const CreateEventScreen(),
+      ),
+      GoRoute(
+        path: homePath,
+        builder: (context, state) => const HomeShellScreen(),
+      ),
+      GoRoute(
+        path: dashboardPath,
+        redirect: (context, state) => todosPath,
+      ),
+    
       GoRoute(
         path: profilePath,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: editProfilePath,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: accountSettingsPath,
+        builder: (context, state) => const AccountSettingsScreen(),
+      ),
+      GoRoute(
+        path: changePasswordPath,
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: termsPath,
+        builder: (context, state) => const LegalScreen(title: 'Terms of Conditions'),
+      ),
+      GoRoute(
+        path: privacyPath,
+        builder: (context, state) => const LegalScreen(title: 'Privacy Policy'),
+      ),
+      GoRoute(
+        path: aboutPath,
+        builder: (context, state) => const LegalScreen(title: 'About us'),
       ),
     ],
   );

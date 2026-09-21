@@ -562,6 +562,8 @@ class CountrySelectDropdownWidget extends StatelessWidget {
         ),
         DropdownButtonFormField<String>(
           initialValue: countries.contains(selectedCountry) ? selectedCountry : countries.first,
+          isExpanded: true,
+          dropdownColor: Colors.white,
           onChanged: onChanged,
           icon: const Icon(
             Icons.keyboard_arrow_down_rounded,
@@ -772,6 +774,8 @@ class NidUploadWidget extends StatelessWidget {
                 Text(
                   selectedFileName ?? 'Click to upload or drag NID copy',
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Color(0xFF1E293B),
                     fontSize: 14,
